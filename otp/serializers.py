@@ -19,3 +19,18 @@ class CreateOTPSerializer(serializers.Serializer):
         phone_number = validated_data['phone_number']
         user = User.objects.get(phone_number=phone_number)
         return OTP.objects.create(user=user)
+
+
+class VerifyOTPSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    code = serializers.CharField()
+
+    def validate(self, attrs):
+        code = attrs['code']
+        user_id = attrs['user_id']
+        otp = OTP.objects.get_or_none(code=code, user_id=user_id)
+
+        if otp is None or otp.is_expired():
+            raise serializers.ValidationError('Invalid OTP code.')
+
+        return attrs
