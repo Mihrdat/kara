@@ -17,7 +17,16 @@ def set_expiration_time():
     return timezone.now() + timedelta(minutes=5)
 
 
+class OTPManager(models.Manager):
+    def get_or_none(self, **kwargs):
+        try:
+            return OTP.objects.get(**kwargs)
+        except OTP.DoesNotExist:
+            return None
+
+
 class OTP(models.Model):
+    objects = OTPManager()
     expiration_time = models.DateTimeField(default=set_expiration_time)
     code = models.CharField(
         max_length=NUMBER_OF_DIGITS, default=generate_random_code)
