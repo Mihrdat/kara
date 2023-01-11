@@ -27,11 +27,10 @@ class OTPManager(models.Manager):
 
 class OTP(models.Model):
     objects = OTPManager()
+    phone_number = models.CharField(max_length=11)
     expiration_time = models.DateTimeField(default=set_expiration_time)
     code = models.CharField(
         max_length=NUMBER_OF_DIGITS, default=generate_random_code)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def is_expired(self):
         return not timezone.now() < self.expiration_time
