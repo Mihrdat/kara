@@ -15,8 +15,7 @@ class CreateOTPSerializer(serializers.ModelSerializer):
 
     def validate_phone_number(self, phone_number):
         if not User.objects.filter(phone_number=phone_number).exists():
-            raise serializers.ValidationError(
-                'No user with the given phone number was found.')
+            User.objects.create(phone_number=phone_number)
         return phone_number
 
     def validate(self, attrs):
