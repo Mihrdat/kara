@@ -1,5 +1,4 @@
 from django.db import models
-from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 import random
@@ -13,24 +12,11 @@ def generate_random_code():
 
 
 def set_expiration_time():
-    # The expiration time is 5 minutes after creation.
     return timezone.now() + timedelta(minutes=5)
 
 
-class OTPManager(models.Manager):
-    def get_or_none(self, **kwargs):
-        try:
-            return OTP.objects.get(**kwargs)
-        except OTP.DoesNotExist:
-            return None
-
-
 class OTP(models.Model):
-    objects = OTPManager()
     phone_number = models.CharField(max_length=11)
     expiration_time = models.DateTimeField(default=set_expiration_time)
     code = models.CharField(
         max_length=NUMBER_OF_DIGITS, default=generate_random_code)
-
-    def is_expired(self):
-        return not timezone.now() < self.expiration_time

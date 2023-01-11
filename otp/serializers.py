@@ -19,29 +19,31 @@ class CreateOTPSerializer(serializers.ModelSerializer):
                 'No user with the given phone number was found.')
         return phone_number
 
-    def create(self, validated_data):
-        phone_number = validated_data['phone_number']
+    def validate(self, attrs):
+        phone_number = attrs['phone_number']
         current_time = timezone.now()
 
         if OTP.objects \
               .filter(phone_number=phone_number, expiration_time__gt=current_time) \
               .exists():
             raise serializers.ValidationError(
-                'We have just sent you a valid code. Please wait until you can make another request.')
+                {'detail': 'We have just sent you a valid code. Please wait until you can make another request.'})
 
-        return super().create(validated_data)
+        return attrs
 
 
-# class VerifyOTPSerializer(serializers.Serializer):
-#     user_id = serializers.IntegerField()
-#     code = serializers.CharField()
+class VerifyOTPSerializer(serializers.Serializer):
+    code = serializers.CharField()
+    phone_number = serializers.CharField()
 
-#     def validate(self, attrs):
-#         code = attrs['code']
-#         user_id = attrs['user_id']
-#         otp = OTP.objects.get_or_none(code=code, user_id=user_id)
+    def validate(self, attrs):
+        code = attrs['code']
+        phone_number = attrs['phone_number']
+        current_time = timezone.now()
 
-#         if otp is None or otp.is_expired():
-#             raise serializers.ValidationError('Invalid OTP code.')
+        if OTP.objects \
+              .filter(code=code, phone_number=phone_number, expiration_time__gt=current_time) \
+              .first() is None:
+            raise serializers.ValidationError('The given OTP code is invalid.')
 
-#         return attrs
+        return attrs
