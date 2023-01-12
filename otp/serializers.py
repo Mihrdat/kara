@@ -13,11 +13,6 @@ class CreateOTPSerializer(serializers.ModelSerializer):
         model = OTP
         fields = ['phone_number', 'expiration_time']
 
-    def validate_phone_number(self, phone_number):
-        if not User.objects.filter(phone_number=phone_number).exists():
-            User.objects.create(phone_number=phone_number)
-        return phone_number
-
     def validate(self, attrs):
         phone_number = attrs['phone_number']
         current_time = timezone.now()

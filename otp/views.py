@@ -21,7 +21,11 @@ class VerifyOTP(APIView):
         serializer.is_valid(raise_exception=True)
 
         phone_number = serializer.validated_data['phone_number']
-        user = User.objects.get(phone_number=phone_number)
+        user = User.objects.filter(phone_number=phone_number).first()
+
+        if user is None:
+            user = User.objects.create(phone_number=phone_number)
+
         login(request, user)
 
         return Response({'detail': 'You have successfully logged in.'})
