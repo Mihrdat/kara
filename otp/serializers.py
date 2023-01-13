@@ -1,36 +1,43 @@
-from rest_framework import serializers
+from django.utils import timezone
 from django.contrib.auth import get_user_model
+from rest_framework import serializers
 from .models import OTP
 
 User = get_user_model()
 
 
-class CreateOTPSerializer(serializers.Serializer):
-    phone_number = serializers.CharField(write_only=True)
-    user_id = serializers.IntegerField(read_only=True)
+class CreateOTPSerializer(serializers.ModelSerializer):
+    expiration_time = serializers.DateTimeField(read_only=True)
 
-    def validate_phone_number(self, phone_number):
-        if not User.objects.filter(phone_number=phone_number).exists():
+    class Meta:
+        model = OTP
+        fields = ['phone_number', 'expiration_time']
+
+    def validate(self, attrs):
+        phone_number = attrs['phone_number']
+        current_time = timezone.now()
+
+        if OTP.objects \
+              .filter(phone_number=phone_number, expiration_time__gt=current_time) \
+              .exists():
             raise serializers.ValidationError(
-                'No user with the given phone number was found.')
-        return phone_number
+                {'detail': 'We have just sent you a valid code. Please wait until you can make another request.'})
 
-    def create(self, validated_data):
-        phone_number = validated_data['phone_number']
-        user = User.objects.get(phone_number=phone_number)
-        return OTP.objects.create(user=user)
+        return attrs
 
 
 class VerifyOTPSerializer(serializers.Serializer):
-    user_id = serializers.IntegerField()
     code = serializers.CharField()
+    phone_number = serializers.CharField()
 
     def validate(self, attrs):
         code = attrs['code']
-        user_id = attrs['user_id']
-        otp = OTP.objects.get_or_none(code=code, user_id=user_id)
+        phone_number = attrs['phone_number']
+        current_time = timezone.now()
 
-        if otp is None or otp.is_expired():
-            raise serializers.ValidationError('Invalid OTP code.')
+        if OTP.objects \
+              .filter(code=code, phone_number=phone_number, expiration_time__gt=current_time) \
+              .first() is None:
+            raise serializers.ValidationError('The given OTP code is invalid.')
 
         return attrs
