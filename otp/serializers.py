@@ -1,9 +1,6 @@
 from django.utils import timezone
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import OTP
-
-User = get_user_model()
 
 
 class CreateOTPSerializer(serializers.ModelSerializer):
@@ -13,31 +10,31 @@ class CreateOTPSerializer(serializers.ModelSerializer):
         model = OTP
         fields = ['phone_number', 'expiration_time']
 
-    def validate(self, attrs):
-        phone_number = attrs['phone_number']
-        current_time = timezone.now()
+    def create(self, validated_data):
+        phone_number = validated_data['phone_number']
 
         if OTP.objects \
-              .filter(phone_number=phone_number, expiration_time__gt=current_time) \
+              .filter(phone_number=phone_number, expiration_time__gt=timezone.now()) \
               .exists():
             raise serializers.ValidationError(
-                {'detail': 'We have just sent you a valid code. Please wait until you can make another request.'})
+                {'detail': 'We have just sent you a code. If you have not received it, please wait until you can send another request.'})
 
-        return attrs
+        return super().create(validated_data)
 
 
-class VerifyOTPSerializer(serializers.Serializer):
-    code = serializers.CharField()
-    phone_number = serializers.CharField()
+class VerifyOTPSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OTP
+        fields = ['code', 'phone_number']
 
     def validate(self, attrs):
         code = attrs['code']
         phone_number = attrs['phone_number']
-        current_time = timezone.now()
 
         if OTP.objects \
-              .filter(code=code, phone_number=phone_number, expiration_time__gt=current_time) \
+              .filter(code=code, phone_number=phone_number, expiration_time__gt=timezone.now()) \
               .first() is None:
-            raise serializers.ValidationError('The given OTP code is invalid.')
+            raise serializers.ValidationError(
+                {'detail': 'The given code is invalid.'})
 
         return attrs
