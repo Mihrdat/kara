@@ -16,11 +16,14 @@ def create(request):
     serializer.is_valid(raise_exception=True)
 
     phone_number = serializer.data['phone_number']
-    code = generate_random_code(number_of_digits=6)
-    cache.set(key=phone_number, value=code)
 
-    print(code)  # Send code to the client using Twilio.
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    if cache.get(key=phone_number):
+        return Response({'detail': 'We have just sent you a code. please wait until you can send another request.'})
+    else:
+        code = generate_random_code(number_of_digits=6)
+        cache.set(key=phone_number, value=code)
+        print(code)  # Send code to the client using Twilio.
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
