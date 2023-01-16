@@ -18,7 +18,7 @@ def create(request):
     phone_number = serializer.data['phone_number']
 
     if cache.get(key=phone_number):
-        return Response({'detail': 'We have just sent you a code. please wait until you can send another request.'})
+        return Response({'detail': 'You have just sent a request. If you have not received the code, please wait until you can send another request.'})
     else:
         code = generate_random_code(number_of_digits=6)
         cache.set(key=phone_number, value=code)
