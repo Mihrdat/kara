@@ -29,11 +29,11 @@ MIDDLEWARE = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'kara',
-        'HOST': 'localhost',
+        'NAME': os.getenv('POSTGRES_DB', 'kara'),
+        'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
         'USER': os.getenv('POSTGRES_USER', 'postgres'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'password'),
-        'PORT': 5432,
+        'PORT': os.getenv('POSTGRES_PORT', 5432),
     }
 }
 
