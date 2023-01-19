@@ -11,6 +11,6 @@ class CreateOTPSerializer(serializers.Serializer):
         return phone_number
 
 
-class VerifyOTPSerializer(serializers.Serializer):
+class VerifySerializer(serializers.Serializer):
     phone_number = serializers.CharField()
     code = serializers.CharField()
