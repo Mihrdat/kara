@@ -17,8 +17,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('phone_number', models.CharField(max_length=11)),
-                ('expiration_time', models.DateTimeField(default=otp.models.set_expiration_time)),
-                ('code', models.CharField(default=otp.models.generate_random_code, max_length=6)),
+                ('expiration_time', models.DateTimeField()),
+                ('code', models.CharField(max_length=6)),
             ],
         ),
     ]
