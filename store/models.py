@@ -4,8 +4,14 @@ from django.core.validators import MinValueValidator
 from uuid import uuid4
 
 
-class Category(models.Model):
+class Collection(models.Model):
     name = models.CharField(max_length=55, unique=True)
+
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        ordering = ['name']
 
 
 class Product(models.Model):
@@ -13,8 +19,14 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     last_update = models.DateField(auto_now=True)
     unit_price = models.DecimalField(max_digits=6, decimal_places=2)
-    category = models.ForeignKey(
-        Category, on_delete=models.PROTECT, related_name='products')
+    collection = models.ForeignKey(
+        Collection, on_delete=models.PROTECT, related_name='products')
+
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        ordering = ['name']
 
 
 class Cart(models.Model):
