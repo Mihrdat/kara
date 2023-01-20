@@ -14,6 +14,7 @@ INSTALLED_APPS = [
     'core',
     'store',
     'otp',
+    'user',
 ]
 
 MIDDLEWARE = [
