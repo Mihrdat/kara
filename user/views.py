@@ -1,12 +1,20 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAdminUser
 from django.contrib.auth import login, get_user_model
 from django.core.cache import cache
-from .serializers import CreateOTPSerializer, VerifySerializer
+from .serializers import CreateOTPSerializer, VerifySerializer, UserSerializer
 from .utils import generate_random_code
 
 User = get_user_model()
+
+
+class UserViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
 
 
 @api_view(['POST'])
