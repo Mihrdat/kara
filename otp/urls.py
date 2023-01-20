@@ -3,6 +3,6 @@ from . import views
 
 
 urlpatterns = [
-    path('otp/create/', views.create),
-    path('otp/verify/', views.verify),
+    path('create/', views.create),
+    path('verify/', views.verify),
 ]

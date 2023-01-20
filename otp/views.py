@@ -13,14 +13,13 @@ User = get_user_model()
 def create(request):
     serializer = CreateOTPSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    phone_number = serializer.data['phone_number']
+    phone_number = serializer.validated_data['phone_number']
 
     if cache.get(key=phone_number):
         return Response({'detail': 'You have just sent a request. If you have not received the code, please wait until you can send another request.'})
 
     code = generate_random_code(number_of_digits=6)
-    cache.set(key=phone_number, value=code)
-    print(code)  # Send code to the client using Twilio.
+    cache.set(key=phone_number, value=code, timeout=(2 * 60))
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -28,13 +27,13 @@ def create(request):
 def verify(request):
     serializer = VerifySerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    phone_number = serializer.data['phone_number']
-    code = serializer.data['code']
+    phone_number = serializer.validated_data['phone_number']
+    code = serializer.validated_data['code']
     value = cache.get(key=phone_number)
 
-    if value is None or value != code:
+    if value != code:
         return Response({'detail': 'The given code is invalid.'})
 
     (user, is_created) = User.objects.get_or_create(phone_number=phone_number)
     login(request, user)
-    return Response({'detail': 'You have successfully logged in.'}, status=status.HTTP_200_OK)
+    return Response({'user_id': user.id}, status=status.HTTP_200_OK)
