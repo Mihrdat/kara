@@ -13,7 +13,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'core',
     'store',
-    'otp',
+    'user',
 ]
 
 MIDDLEWARE = [
@@ -29,11 +29,11 @@ MIDDLEWARE = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'kara',
-        'HOST': 'localhost',
+        'NAME': os.getenv('POSTGRES_DB', 'kara'),
+        'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
         'USER': os.getenv('POSTGRES_USER', 'postgres'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'password'),
-        'PORT': 5432,
+        'PORT': os.getenv('POSTGRES_PORT', 5432),
     }
 }
 
@@ -85,3 +85,13 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'core.User'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}

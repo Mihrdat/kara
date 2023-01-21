@@ -1,3 +1,64 @@
 from django.db import models
+from django.conf import settings
+from django.core.validators import MinValueValidator
+from uuid import uuid4
 
-# Create your models here.
+
+class Collection(models.Model):
+    name = models.CharField(max_length=55, unique=True)
+
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        ordering = ['name']
+
+
+class Product(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True)
+    last_update = models.DateField(auto_now=True)
+    unit_price = models.DecimalField(max_digits=6, decimal_places=2)
+    collection = models.ForeignKey(
+        Collection, on_delete=models.PROTECT, related_name='products')
+
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        ordering = ['name']
+
+
+class Cart(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4)
+    created_at = models.DateField(auto_now_add=True)
+
+
+class CartItem(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)])
+    cart = models.ForeignKey(
+        Cart, on_delete=models.CASCADE, related_name='items')
+
+    class Meta:
+        unique_together = [['cart', 'product']]
+
+
+class Customer(models.Model):
+    birth_date = models.DateField(null=True, blank=True)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+
+class Order(models.Model):
+    placed_at = models.DateTimeField(auto_now_add=True)
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
+
+
+class OrderItem(models.Model):
+    quantity = models.PositiveSmallIntegerField()
+    unit_price = models.DecimalField(max_digits=6, decimal_places=2)
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    order = models.ForeignKey(
+        Order, on_delete=models.PROTECT, related_name='items')
