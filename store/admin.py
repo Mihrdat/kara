@@ -7,9 +7,9 @@ from .models import Collection, Product
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'last_update', 'unit_price', 'collection']
+    list_display = ['name', 'created_at', 'unit_price', 'collection']
     list_editable = ['unit_price']
-    list_filter = ['collection', 'last_update']
+    list_filter = ['collection', 'created_at']
     list_per_page = 15
     search_fields = ['name']
 

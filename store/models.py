@@ -1,5 +1,5 @@
 from django.db import models
-from django.conf import settings
+from user.models import Customer
 from django.core.validators import MinValueValidator
 from uuid import uuid4
 
@@ -7,7 +7,7 @@ from uuid import uuid4
 class Collection(models.Model):
     name = models.CharField(max_length=55, unique=True)
 
-    def __str__(self) -> str:
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -17,12 +17,12 @@ class Collection(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
-    last_update = models.DateField(auto_now=True)
+    created_at = models.DateField(auto_now_add=True)
     unit_price = models.DecimalField(max_digits=6, decimal_places=2)
     collection = models.ForeignKey(
         Collection, on_delete=models.PROTECT, related_name='products')
 
-    def __str__(self) -> str:
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -35,7 +35,7 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
     quantity = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)])
     cart = models.ForeignKey(
@@ -45,14 +45,8 @@ class CartItem(models.Model):
         unique_together = [['cart', 'product']]
 
 
-class Customer(models.Model):
-    birth_date = models.DateField(null=True, blank=True)
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
-
 class Order(models.Model):
-    placed_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
 
 
