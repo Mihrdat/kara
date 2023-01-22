@@ -1,6 +1,7 @@
-from django.contrib.auth import get_user_model
-from django.core.cache import cache
 from rest_framework import serializers
+from django.core.cache import cache
+from django.contrib.auth import get_user_model
+from store.models import Customer
 from .utils import is_valid_phone_number
 
 User = get_user_model()
@@ -28,17 +29,21 @@ class VerifySerializer(serializers.Serializer):
         phone_number = attrs['phone_number']
         code = attrs['code']
         value = cache.get(key=phone_number)
-
-        if value is None:
-            raise serializers.ValidationError(
-                'First, request to send an OTP code to this phone number.')
-        elif value != code:
+        if value != code:
             raise serializers.ValidationError('The given code is invalid.')
 
         return attrs
 
 
-class UserSerializer(serializers.ModelSerializer):
+class SimpleUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'phone_number']
+        fields = ['id', 'username', 'first_name', 'last_name', 'phone_number']
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    user = SimpleUserSerializer()
+
+    class Meta:
+        model = Customer
+        fields = ['id', 'birth_date', 'user']
