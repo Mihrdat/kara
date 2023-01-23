@@ -22,6 +22,10 @@ class CustomerViewSet(GenericViewSet):
         serializer = SendOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone_number = serializer.validated_data['phone_number']
+
+        if cache.get(key=phone_number):
+            return Response({'detail': 'Request limit reached.'}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+
         code = generate_random_code(number_of_digits=6)
         cache.set(key=phone_number, value=code, timeout=2 * 60)
         print(code)

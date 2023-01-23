@@ -13,11 +13,6 @@ class SendOTPSerializer(serializers.Serializer):
     def validate_phone_number(self, phone_number):
         if not is_valid_phone_number(phone_number):
             raise serializers.ValidationError('Please enter a valid number.')
-
-        if cache.get(key=phone_number):
-            raise serializers.ValidationError(
-                'You have just sent a request. If you have not received the code, please wait until you can send another request.')
-
         return phone_number
 
 
