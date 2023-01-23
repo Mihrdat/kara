@@ -1,10 +1,17 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
     phone_number = models.CharField(max_length=11, unique=True)
+    password = models.CharField(max_length=128, default=make_password(None))
+    username = models.CharField(
+        max_length=150, blank=True, null=True)
+
+    USERNAME_FIELD = 'phone_number'
+    REQUIRED_FIELDS = []
 
 
 class Customer(models.Model):

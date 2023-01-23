@@ -24,7 +24,7 @@ class CustomerViewSet(GenericViewSet):
         phone_number = serializer.validated_data['phone_number']
 
         if cache.get(key=phone_number):
-            return Response({'detail': 'Request limit reached.'}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+            return Response({'detail': 'You have just sent a request. If you have not received the code, please wait until you can send another request.'})
 
         code = generate_random_code(number_of_digits=6)
         cache.set(key=phone_number, value=code, timeout=2 * 60)
@@ -36,8 +36,7 @@ class CustomerViewSet(GenericViewSet):
         serializer = VerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone_number = serializer.validated_data['phone_number']
-        user, created = User.objects.get_or_create(
-            phone_number=phone_number, username=phone_number)
+        user, created = User.objects.get_or_create(phone_number=phone_number)
         customer, created = Customer.objects.get_or_create(user=user)
         login(request, user)
         serializer = CustomerSerializer(customer)
