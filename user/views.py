@@ -29,7 +29,7 @@ class CustomerViewSet(GenericViewSet):
         code = generate_random_code(number_of_digits=6)
         cache.set(key=phone_number, value=code, timeout=2 * 60)
         print(code)
-        return Response(status=status.HTTP_201_CREATED)
+        return Response(serializer.data)
 
     @action(detail=False, methods=['POST'], permission_classes=[AllowAny])
     def verify(self, request):
