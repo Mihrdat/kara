@@ -7,12 +7,14 @@ from rest_framework.viewsets import ModelViewSet
 from .models import Collection, Product
 from .serializers import CollectionSerializer, ProductSerializer
 from .permissions import IsAdminOrReadOnly
+from .pagination import DefaultPagination
 
 
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(products_count=Count('products'))
     serializer_class = CollectionSerializer
     permission_classes = [IsAdminOrReadOnly]
+    pagination_class = DefaultPagination
 
     def destroy(self, request, *args, **kwargs):
         if Product.objects.filter(collection_id=kwargs['pk']).exists():
@@ -25,3 +27,4 @@ class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAdminOrReadOnly]
+    pagination_class = DefaultPagination
