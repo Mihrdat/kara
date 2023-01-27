@@ -13,11 +13,15 @@ from .models import (
     Collection,
     Product,
     Cart,
+    CartItem,
 )
 from .serializers import (
     CollectionSerializer,
     ProductSerializer,
     CartSerializer,
+    CartItemCreateSerializer,
+    CartItemUpdateSerializer,
+    CartItemSerializer
 )
 from .permissions import IsAdminOrReadOnly
 from .pagination import DefaultPagination
@@ -47,5 +51,25 @@ class CartViewSet(CreateModelMixin,
                   RetrieveModelMixin,
                   DestroyModelMixin,
                   GenericViewSet):
-    queryset = Cart.objects.all()
+    queryset = Cart.objects.prefetch_related('items__product')
     serializer_class = CartSerializer
+
+
+class CartItemViewSet(ModelViewSet):
+    # We do not allow PUT request.
+    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
+
+    def get_queryset(self):
+        return CartItem.objects \
+                       .filter(cart_id=self.kwargs['cart_pk']) \
+                       .select_related('product')
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CartItemCreateSerializer
+        elif self.request.method == 'PATCH':
+            return CartItemUpdateSerializer
+        return CartItemSerializer
+
+    def get_serializer_context(self):
+        return {'cart_id': self.kwargs['cart_pk']}
