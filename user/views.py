@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth import login, get_user_model
+from django.contrib.auth.hashers import make_password
 from django.core.cache import cache
 from store.models import Customer
 from .serializers import SendOTPSerializer, VerifySerializer, CustomerSerializer
@@ -36,7 +37,8 @@ class CustomerViewSet(GenericViewSet):
         serializer = VerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone_number = serializer.validated_data['phone_number']
-        user, created = User.objects.get_or_create(phone_number=phone_number)
+        user, created = User.objects.get_or_create(
+            phone_number=phone_number, password=make_password(phone_number))
         customer, created = Customer.objects.get_or_create(user=user)
         login(request, user)
         serializer = CustomerSerializer(customer)
