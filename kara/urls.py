@@ -10,6 +10,7 @@ router = DefaultRouter()
 router.register('customers', user_views.CustomerViewSet)
 router.register('collections', store_views.CollectionViewSet)
 router.register('products', store_views.ProductViewSet)
+router.register('carts', store_views.CartViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
