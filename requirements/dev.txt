@@ -3,3 +3,4 @@
 
 autopep8
 django-extensions
+django-debug-toolbar == 3.4.0
