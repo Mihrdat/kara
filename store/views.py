@@ -3,10 +3,12 @@ from django.db.models import Count
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.mixins import (
     CreateModelMixin,
     RetrieveModelMixin,
     DestroyModelMixin,
+    ListModelMixin,
 )
 
 from .models import (
@@ -14,6 +16,7 @@ from .models import (
     Product,
     Cart,
     CartItem,
+    Order,
 )
 from .serializers import (
     CollectionSerializer,
@@ -21,10 +24,14 @@ from .serializers import (
     CartSerializer,
     CartItemCreateSerializer,
     CartItemUpdateSerializer,
-    CartItemSerializer
+    CartItemSerializer,
+    OrderCreateSerializer,
+    OrderSerializer,
 )
 from .permissions import IsAdminOrReadOnly
 from .pagination import DefaultPagination
+
+from user.models import Customer
 
 
 class CollectionViewSet(ModelViewSet):
@@ -73,3 +80,33 @@ class CartItemViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'cart_id': self.kwargs['cart_pk']}
+
+
+class OrderViewSet(CreateModelMixin,
+                   ListModelMixin,
+                   RetrieveModelMixin,
+                   DestroyModelMixin,
+                   GenericViewSet):
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Order.objects.all()
+        return Order.objects.filter(customer=Customer.objects.get(user=user))
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return OrderCreateSerializer
+        return OrderSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'DELETE':
+            return [IsAdminUser()]
+        return [IsAuthenticated()]
+
+    def create(self, request, *args, **kwargs):
+        serializer = OrderCreateSerializer(
+            data=request.data, context={'user': self.request.user})
+        serializer.is_valid(raise_exception=True)
+        order = serializer.save()
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
