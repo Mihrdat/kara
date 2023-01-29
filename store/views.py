@@ -63,9 +63,6 @@ class CartViewSet(CreateModelMixin,
 
 
 class CartItemViewSet(ModelViewSet):
-    # We do not allow PUT request.
-    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
-
     def get_queryset(self):
         return CartItem.objects \
                        .filter(cart_id=self.kwargs['cart_pk']) \
