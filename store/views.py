@@ -69,9 +69,9 @@ class CartItemViewSet(ModelViewSet):
                        .select_related('product')
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.action == 'create':
             return CartItemCreateSerializer
-        elif self.request.method == 'PATCH':
+        elif self.request.method in ['update', 'partial_update']:
             return CartItemUpdateSerializer
         return CartItemSerializer
 
@@ -91,7 +91,7 @@ class OrderViewSet(CreateModelMixin,
         return Order.objects.filter(customer=Customer.objects.get(user=user))
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.action == 'create':
             return OrderCreateSerializer
         return OrderSerializer
 
