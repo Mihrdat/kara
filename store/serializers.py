@@ -13,15 +13,18 @@ from user.serializers import CustomerSerializer
 
 
 class CollectionSerializer(serializers.ModelSerializer):
+    parent_collection = serializers.PrimaryKeyRelatedField(
+        queryset=Collection.objects.all(), allow_null=True)
     products_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Collection
-        fields = ['id', 'name', 'products_count']
+        fields = ['id', 'name', 'products_count', 'parent_collection']
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    collection_id = serializers.IntegerField()
+    collection = serializers.PrimaryKeyRelatedField(
+        queryset=Collection.objects.all())
 
     class Meta:
         model = Product
@@ -31,7 +34,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'description',
             'created_at',
             'unit_price',
-            'collection_id',
+            'collection',
         ]
 
 
