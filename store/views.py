@@ -28,7 +28,6 @@ from .serializers import (
     OrderCreateSerializer,
     OrderSerializer,
 )
-from .pagination import DefaultPagination
 
 from user.models import Customer
 
@@ -36,7 +35,6 @@ from user.models import Customer
 class CollectionViewSet(ListModelMixin, GenericViewSet):
     queryset = Collection.objects.annotate(products_count=Count('products'))
     serializer_class = CollectionSerializer
-    pagination_class = DefaultPagination
 
 
 class ProductViewSet(ListModelMixin,
@@ -44,7 +42,6 @@ class ProductViewSet(ListModelMixin,
                      GenericViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    pagination_class = DefaultPagination
 
 
 class CartViewSet(CreateModelMixin,

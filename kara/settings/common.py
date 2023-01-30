@@ -13,6 +13,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_extensions',
     'debug_toolbar',
+    'custom',
     'store',
     'user',
 ]
