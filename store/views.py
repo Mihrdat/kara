@@ -53,7 +53,7 @@ class CartViewSet(CreateModelMixin,
 
 
 class CartItemViewSet(ModelViewSet):
-    queryset = CartItem.objects.all()
+    queryset = CartItem.objects.select_related('product')
 
     def get_queryset(self):
         return self.queryset \
