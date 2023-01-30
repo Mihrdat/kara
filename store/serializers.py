@@ -1,3 +1,5 @@
+from django.db.models import Count
+
 from rest_framework import serializers
 from django.db import transaction
 from .models import (
@@ -69,15 +71,8 @@ class CartItemCreateSerializer(serializers.ModelSerializer):
         product_id = validated_data['product_id']
         quantity = validated_data['quantity']
 
-        try:
-            cart_item = CartItem.objects.get(
-                cart_id=cart_id, product_id=product_id)
-            cart_item.quantity += quantity
-            cart_item.save()
-            self.instance = cart_item
-        except CartItem.DoesNotExist:
-            self.instance = CartItem.objects.create(
-                cart_id=cart_id, **self.validated_data)
+        self.instance, created = CartItem.objects.update_or_create(
+            cart_id=cart_id, product_id=product_id, defaults={'quantity': quantity})
 
         return self.instance
 
