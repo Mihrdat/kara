@@ -3,7 +3,7 @@ from django.db.models import Count
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.mixins import (
     CreateModelMixin,
     RetrieveModelMixin,
@@ -28,29 +28,22 @@ from .serializers import (
     OrderCreateSerializer,
     OrderSerializer,
 )
-from .permissions import IsAdminOrReadOnly
 from .pagination import DefaultPagination
 
 from user.models import Customer
 
 
-class CollectionViewSet(ModelViewSet):
+class CollectionViewSet(ListModelMixin, GenericViewSet):
     queryset = Collection.objects.annotate(products_count=Count('products'))
     serializer_class = CollectionSerializer
-    permission_classes = [IsAdminOrReadOnly]
     pagination_class = DefaultPagination
 
-    def destroy(self, request, *args, **kwargs):
-        if Product.objects.filter(collection_id=kwargs['pk']).exists():
-            return Response({'detail': 'Collection cannot be deleted, because it includes one or more products.'},
-                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        return super().destroy(request, *args, **kwargs)
 
-
-class ProductViewSet(ModelViewSet):
+class ProductViewSet(ListModelMixin,
+                     RetrieveModelMixin,
+                     GenericViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAdminOrReadOnly]
     pagination_class = DefaultPagination
 
 
@@ -63,15 +56,17 @@ class CartViewSet(CreateModelMixin,
 
 
 class CartItemViewSet(ModelViewSet):
+    queryset = CartItem.objects.all()
+
     def get_queryset(self):
-        return CartItem.objects \
-                       .filter(cart_id=self.kwargs['cart_pk']) \
-                       .select_related('product')
+        return self.queryset \
+                   .filter(cart_id=self.kwargs['cart_pk']) \
+                   .select_related('product')
 
     def get_serializer_class(self):
-        if self.action == 'create':
+        if self.action is 'create':
             return CartItemCreateSerializer
-        elif self.request.method in ['update', 'partial_update']:
+        elif self.action in ['update', 'partial_update']:
             return CartItemUpdateSerializer
         return CartItemSerializer
 
@@ -82,27 +77,21 @@ class CartItemViewSet(ModelViewSet):
 class OrderViewSet(CreateModelMixin,
                    ListModelMixin,
                    RetrieveModelMixin,
-                   DestroyModelMixin,
                    GenericViewSet):
+    queryset = Order.objects.all()
+    permission_classes = [IsAuthenticated]
+
     def get_queryset(self):
-        user = self.request.user
-        if user.is_staff:
-            return Order.objects.all()
-        return Order.objects.filter(customer=Customer.objects.get(user=user))
+        customer = Customer.objects.get(user=self.request.user)
+        return self.queryset.filter(customer=customer)
 
     def get_serializer_class(self):
-        if self.action == 'create':
+        if self.action is 'create':
             return OrderCreateSerializer
         return OrderSerializer
 
-    def get_permissions(self):
-        if self.request.method == 'DELETE':
-            return [IsAdminUser()]
-        return [IsAuthenticated()]
-
     def create(self, request, *args, **kwargs):
-        serializer = OrderCreateSerializer(
-            data=request.data, context={'user': self.request.user})
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         order = serializer.save()
         serializer = OrderSerializer(order)
