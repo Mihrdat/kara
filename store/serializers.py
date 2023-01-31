@@ -123,8 +123,10 @@ class OrderCreateSerializer(serializers.Serializer):
 
     def validate_cart_id(self, cart_id):
         try:
-            cart = Cart.objects.get(id=cart_id)
-            if cart.items.count() == 0:
+            cart = Cart.objects \
+                       .annotate(items_count=Count('items')) \
+                       .get(id=cart_id)
+            if cart.items_count == 0:
                 raise serializers.ValidationError('The cart is empty.')
         except Cart.DoesNotExist:
             raise serializers.ValidationError(
