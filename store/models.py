@@ -6,6 +6,8 @@ from uuid import uuid4
 
 class Collection(models.Model):
     name = models.CharField(max_length=55, unique=True)
+    parent_collection = models.ForeignKey(
+        'self', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.name
