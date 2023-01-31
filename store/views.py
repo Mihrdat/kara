@@ -75,7 +75,9 @@ class OrderViewSet(CreateModelMixin,
                    ListModelMixin,
                    RetrieveModelMixin,
                    GenericViewSet):
-    queryset = Order.objects.all()
+    queryset = Order.objects \
+                    .select_related('customer__user') \
+                    .prefetch_related('items__product')
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
