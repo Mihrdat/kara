@@ -61,7 +61,7 @@ class CartItemViewSet(ModelViewSet):
                    .select_related('product')
 
     def get_serializer_class(self):
-        if self.action is 'create':
+        if self.action == 'create':
             return CartItemCreateSerializer
         elif self.action in ['update', 'partial_update']:
             return CartItemUpdateSerializer
@@ -85,7 +85,7 @@ class OrderViewSet(CreateModelMixin,
         return self.queryset.filter(customer=customer)
 
     def get_serializer_class(self):
-        if self.action is 'create':
+        if self.action == 'create':
             return OrderCreateSerializer
         return OrderSerializer
 

@@ -2,12 +2,18 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.contrib.auth import login, get_user_model
+from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from django.core.cache import cache
 from store.models import Customer
-from .serializers import SendOTPSerializer, VerifySerializer, CustomerSerializer
+from .serializers import (
+    SendOTPSerializer,
+    VerifySerializer,
+    CustomerSerializer,
+    TokenSerializer,
+)
 from .utils import generate_random_code
 
 User = get_user_model()
@@ -39,7 +45,7 @@ class CustomerViewSet(GenericViewSet):
         phone_number = serializer.validated_data['phone_number']
         user, created = User.objects.get_or_create(
             phone_number=phone_number, password=make_password(None))
+        token, created = Token.objects.get_or_create(user=user)
         customer, created = Customer.objects.get_or_create(user=user)
-        login(request, user)
-        serializer = CustomerSerializer(customer)
+        serializer = TokenSerializer(token)
         return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)

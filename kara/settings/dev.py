@@ -6,4 +6,7 @@ DEBUG = True
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'custom.pagination.GlobalLimitOffsetPagination',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
 }
