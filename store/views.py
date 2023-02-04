@@ -28,6 +28,7 @@ from .serializers import (
     OrderCreateSerializer,
     OrderSerializer,
 )
+from .throtteling import CartAnonRateThrottle, CartUserRateThrottle
 
 from user.models import Customer
 
@@ -50,6 +51,7 @@ class CartViewSet(CreateModelMixin,
                   GenericViewSet):
     queryset = Cart.objects.prefetch_related('items__product')
     serializer_class = CartSerializer
+    throttle_classes = [CartAnonRateThrottle, CartUserRateThrottle]
 
 
 class CartItemViewSet(ModelViewSet):
