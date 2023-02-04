@@ -28,7 +28,7 @@ from .serializers import (
     OrderCreateSerializer,
     OrderSerializer,
 )
-from .throtteling import CartAnonRateThrottle, CartUserRateThrottle
+from .throttling import CartAnonRateThrottle, CartUserRateThrottle
 
 from user.models import Customer
 
