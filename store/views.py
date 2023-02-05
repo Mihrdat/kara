@@ -4,10 +4,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 from rest_framework.mixins import (
     CreateModelMixin,
     RetrieveModelMixin,
-    DestroyModelMixin,
     ListModelMixin,
 )
 
@@ -47,11 +47,17 @@ class ProductViewSet(ListModelMixin,
 
 class CartViewSet(CreateModelMixin,
                   RetrieveModelMixin,
-                  DestroyModelMixin,
                   GenericViewSet):
     queryset = Cart.objects.prefetch_related('items__product')
     serializer_class = CartSerializer
     throttle_classes = [CartAnonRateThrottle, CartUserRateThrottle]
+
+    @action(detail=False, permission_classes=[IsAuthenticated])
+    def me(self, request):
+        customer = Customer.objects.get(user=request.user)
+        cart, created = Cart.objects.get_or_create(customer=customer)
+        serializer = self.get_serializer(cart)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CartItemViewSet(ModelViewSet):
