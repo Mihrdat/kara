@@ -60,8 +60,7 @@ class CartItemUpdateSerializer(serializers.ModelSerializer):
 
 
 class CartItemCreateSerializer(serializers.ModelSerializer):
-    product_id = serializers.PrimaryKeyRelatedField(
-        queryset=Product.objects.all())
+    product_id = serializers.IntegerField()
 
     class Meta:
         model = CartItem

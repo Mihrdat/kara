@@ -52,12 +52,26 @@ class CartViewSet(CreateModelMixin,
     serializer_class = CartSerializer
     throttle_classes = [CartAnonRateThrottle, CartUserRateThrottle]
 
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        response.set_cookie(key='cart_id', value=response.data['id'])
+        return response
+
     @action(detail=False, permission_classes=[IsAuthenticated])
     def me(self, request):
         customer = Customer.objects.get(user=request.user)
         cart, created = Cart.objects.get_or_create(customer=customer)
         serializer = self.get_serializer(cart)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        response = Response(serializer.data, status=status.HTTP_200_OK)
+
+        cookie_cart_id = request.COOKIES.get('cart_id')
+        if cookie_cart_id:
+            CartItem.objects \
+                    .filter(cart_id=cookie_cart_id) \
+                    .update(cart_id=cart.id)
+
+        response.set_cookie(key='cart_id', value=cart.id)
+        return response
 
 
 class CartItemViewSet(ModelViewSet):
