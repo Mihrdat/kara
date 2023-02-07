@@ -53,6 +53,8 @@ class CartViewSet(CreateModelMixin,
     throttle_classes = [CartAnonRateThrottle, CartUserRateThrottle]
 
     def create(self, request, *args, **kwargs):
+        if request.COOKIES.get('cart_id'):
+            return Response({'detail': 'Not allowed.'})
         response = super().create(request, *args, **kwargs)
         response.set_cookie(key='cart_id', value=response.data['id'])
         return response
@@ -61,15 +63,24 @@ class CartViewSet(CreateModelMixin,
     def me(self, request):
         customer = Customer.objects.get(user=request.user)
         cart, created = Cart.objects.get_or_create(customer=customer)
+
+        req_cookie_cart_id = request.COOKIES.get('cart_id')
+        if req_cookie_cart_id != str(cart.id):
+            cart_items = CartItem.objects \
+                                 .filter(cart_id=req_cookie_cart_id) \
+                                 .select_related('product')
+
+            for item in cart_items:
+                CartItem.objects.update_or_create(
+                    product_id=item.product_id,
+                    cart_id=cart.id,
+                    defaults={'quantity': item.quantity}
+                )
+
+            Cart.objects.filter(pk=req_cookie_cart_id).delete()
+
         serializer = self.get_serializer(cart)
         response = Response(serializer.data, status=status.HTTP_200_OK)
-
-        cookie_cart_id = request.COOKIES.get('cart_id')
-        if cookie_cart_id:
-            CartItem.objects \
-                    .filter(cart_id=cookie_cart_id) \
-                    .update(cart_id=cart.id)
-
         response.set_cookie(key='cart_id', value=cart.id)
         return response
 
