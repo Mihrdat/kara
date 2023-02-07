@@ -64,10 +64,10 @@ class CartViewSet(CreateModelMixin,
         customer = Customer.objects.get(user=request.user)
         cart, created = Cart.objects.get_or_create(customer=customer)
 
-        req_cookie_cart_id = request.COOKIES.get('cart_id')
-        if req_cookie_cart_id != str(cart.id):
+        cart_id = request.COOKIES.get('cart_id')
+        if cart_id != str(cart.id):
             cart_items = CartItem.objects \
-                                 .filter(cart_id=req_cookie_cart_id) \
+                                 .filter(cart_id=cart_id) \
                                  .select_related('product')
 
             for item in cart_items:
@@ -77,7 +77,7 @@ class CartViewSet(CreateModelMixin,
                     defaults={'quantity': item.quantity}
                 )
 
-            Cart.objects.filter(pk=req_cookie_cart_id).delete()
+            Cart.objects.filter(pk=cart_id).delete()
 
         serializer = self.get_serializer(cart)
         response = Response(serializer.data, status=status.HTTP_200_OK)
