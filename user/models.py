@@ -14,4 +14,4 @@ class User(AbstractUser):
 class Customer(models.Model):
     birth_date = models.DateField(null=True, blank=True)
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='customer')

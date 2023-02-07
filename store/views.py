@@ -60,15 +60,14 @@ class CartViewSet(CreateModelMixin,
         return response
 
     @action(detail=False, permission_classes=[IsAuthenticated])
-    def me(self, request):
-        customer = Customer.objects.get(user=request.user)
+    def mine(self, request):
+        customer = request.user.customer
         cart, created = Cart.objects.get_or_create(customer=customer)
 
         cookie_cart_id = request.COOKIES.get('cart_id')
         if cookie_cart_id != str(cart.id):
             cart_items = CartItem.objects \
                                  .filter(cart_id=cookie_cart_id) \
-                                 .select_related('product')
 
             for item in cart_items:
                 CartItem.objects.update_or_create(

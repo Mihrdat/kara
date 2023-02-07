@@ -2,7 +2,6 @@ from django.db import models
 from user.models import Customer
 from django.core.validators import MinValueValidator
 from uuid import uuid4
-from .validators import validate_image_size
 
 
 class Collection(models.Model):
@@ -33,10 +32,9 @@ class Product(models.Model):
 
 
 class ProductImage(models.Model):
+    image = models.ImageField(upload_to='store/images')
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(
-        upload_to='store/images', validators=[validate_image_size])
 
 
 class Cart(models.Model):
