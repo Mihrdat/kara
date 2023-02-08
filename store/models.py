@@ -31,9 +31,17 @@ class Product(models.Model):
         ordering = ['name']
 
 
+class ProductImage(models.Model):
+    image = models.ImageField(upload_to='store/images')
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name='images')
+
+
 class Cart(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4)
     created_at = models.DateField(auto_now_add=True)
+    customer = models.OneToOneField(
+        Customer, on_delete=models.CASCADE, null=True, blank=True)
 
 
 class CartItem(models.Model):
