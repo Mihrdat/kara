@@ -9,6 +9,7 @@ from django.core.cache import cache
 from store.models import Customer
 from .serializers import SendOTPSerializer, VerifySerializer, CustomerSerializer
 from .utils import generate_random_code
+from .throttling import SendOTPAnonRateThrottle
 
 User = get_user_model()
 
@@ -18,15 +19,11 @@ class CustomerViewSet(GenericViewSet):
     serializer_class = CustomerSerializer
     permission_classes = [IsAuthenticated]
 
-    @action(detail=False, methods=['POST'], permission_classes=[AllowAny])
+    @action(detail=False, methods=['POST'], permission_classes=[AllowAny], throttle_classes=[SendOTPAnonRateThrottle])
     def send_otp(self, request):
         serializer = SendOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone_number = serializer.validated_data['phone_number']
-
-        if cache.get(key=phone_number):
-            return Response({'detail': 'You have just sent a request. If you have not received the code, please wait until you can send another request.'})
-
         code = generate_random_code(number_of_digits=6)
         cache.set(key=phone_number, value=code, timeout=2 * 60)
         print(code)
@@ -34,6 +31,8 @@ class CustomerViewSet(GenericViewSet):
 
     @action(detail=False, methods=['POST'], permission_classes=[AllowAny])
     def verify(self, request):
+        if 'Authorization' in request.headers:
+            return Response({'detail': 'You have already logged in.'}, status=status.HTTP_400_BAD_REQUEST)
         serializer = VerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone_number = serializer.validated_data['phone_number']
