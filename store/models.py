@@ -48,8 +48,25 @@ class CartItem(models.Model):
 
 
 class Order(models.Model):
+    STATUS_PENDING = 'pending'
+    STATUS_IN_PROGRESS = 'in_progress'
+    STATUS_COMPLETED = 'completed'
+    STATUS_CANCELED = 'canceled'
+    STATUS_FAILED = 'failed'
+
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_COMPLETED, 'Completed'),
+        (STATUS_FAILED, 'Failed'),
+        (STATUS_IN_PROGRESS, 'In Progress'),
+        (STATUS_CANCELED, 'Canceled'),
+    ]
+
     created_at = models.DateTimeField(auto_now_add=True)
+    last_update = models.DateTimeField(auto_now=True)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
+    status = models.CharField(
+        max_length=55, choices=STATUS_CHOICES, default=STATUS_PENDING)
 
 
 class OrderItem(models.Model):
