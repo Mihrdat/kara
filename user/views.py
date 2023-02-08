@@ -31,8 +31,6 @@ class CustomerViewSet(GenericViewSet):
 
     @action(detail=False, methods=['POST'], permission_classes=[AllowAny])
     def verify(self, request):
-        if 'Authorization' in request.headers:
-            return Response({'detail': 'You have already logged in.'}, status=status.HTTP_400_BAD_REQUEST)
         serializer = VerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone_number = serializer.validated_data['phone_number']
