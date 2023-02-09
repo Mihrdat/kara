@@ -35,7 +35,7 @@ class CustomerViewSet(GenericViewSet):
         serializer.is_valid(raise_exception=True)
         phone_number = serializer.validated_data['phone_number']
         user, created = User.objects.get_or_create(
-            phone_number=phone_number, password=make_password(None))
+            phone_number=phone_number, defaults={'password': make_password(None)})
         customer, created = Customer.objects.get_or_create(user=user)
         login(request, user)
         serializer = CustomerSerializer(customer)
