@@ -54,7 +54,7 @@ class CartViewSet(CreateModelMixin,
 
     def create(self, request, *args, **kwargs):
         if request.COOKIES.get('cart_id'):
-            return Response({'detail': 'Not allowed.'})
+            return Response({'detail': 'There is currently a shopping cart.'}, status=status.HTTP_409_CONFLICT)
         response = super().create(request, *args, **kwargs)
         response.set_cookie(key='cart_id', value=response.data['id'])
         return response
