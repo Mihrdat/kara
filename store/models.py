@@ -56,8 +56,17 @@ class CartItem(models.Model):
 
 
 class Order(models.Model):
+    class Status(models.IntegerChoices):
+        PENDING = 0
+        IN_PROGRESS = 1
+        COMPLETED = 2
+        CANCELED = 3
+        FAILED = 4
+
     created_at = models.DateTimeField(auto_now_add=True)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
+    status = models.IntegerField(
+        choices=Status.choices, default=Status.PENDING)
 
 
 class OrderItem(models.Model):
@@ -66,3 +75,10 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     order = models.ForeignKey(
         Order, on_delete=models.PROTECT, related_name='items')
+
+
+class OrderStatusLog(models.Model):
+    status = models.CharField(max_length=55, choices=Order.Status.choices)
+    created_at = models.DateTimeField(auto_now_add=True)
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE, related_name='status_logs')
