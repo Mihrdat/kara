@@ -106,3 +106,7 @@ CACHES = {
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]

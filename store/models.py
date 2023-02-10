@@ -1,7 +1,9 @@
 from django.db import models
-from user.models import Customer
+from django.conf import settings
 from django.core.validators import MinValueValidator
+from django.utils.translation import gettext as _
 from uuid import uuid4
+from user.models import Customer
 
 
 class Collection(models.Model):
@@ -56,17 +58,8 @@ class CartItem(models.Model):
 
 
 class Order(models.Model):
-    class Status(models.IntegerChoices):
-        PENDING = 0
-        IN_PROGRESS = 1
-        COMPLETED = 2
-        CANCELED = 3
-        FAILED = 4
-
     created_at = models.DateTimeField(auto_now_add=True)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
-    status = models.IntegerField(
-        choices=Status.choices, default=Status.PENDING)
 
 
 class OrderItem(models.Model):
@@ -78,7 +71,19 @@ class OrderItem(models.Model):
 
 
 class OrderStatusLog(models.Model):
-    status = models.CharField(max_length=55, choices=Order.Status.choices)
+    class Status(models.IntegerChoices):
+        PENDING = 0, _('Pending')
+        IN_PROGRESS = 1, _('In Progress')
+        COMPLETED = 2, _('Completed')
+        CANCELED = 3, _('Canceled')
+        FAILED = 4, _('Failed')
+
     created_at = models.DateTimeField(auto_now_add=True)
+    previous_status = models.IntegerField(
+        choices=Status.choices, default=Status.PENDING)
+    current_status = models.IntegerField(
+        choices=Status.choices, default=Status.PENDING)
+    performer = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     order = models.ForeignKey(
         Order, on_delete=models.CASCADE, related_name='status_logs')

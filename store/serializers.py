@@ -9,6 +9,7 @@ from .models import (
     CartItem,
     Order,
     OrderItem,
+    OrderStatusLog,
 )
 from user.models import Customer
 from user.serializers import CustomerSerializer
@@ -107,6 +108,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer()
     items = OrderItemSerializer(many=True)
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -115,7 +117,11 @@ class OrderSerializer(serializers.ModelSerializer):
             'created_at',
             'customer',
             'items',
+            'status',
         ]
+
+    def get_status(self, order):
+        return order.status_logs.last().current_status
 
 
 class OrderCreateSerializer(serializers.Serializer):
@@ -156,6 +162,7 @@ class OrderCreateSerializer(serializers.Serializer):
         ]
 
         OrderItem.objects.bulk_create(order_items)
+        OrderStatusLog.objects.create(order=order, performer=user)
         CartItem.objects.filter(cart=cart_id).delete()
 
         return order
