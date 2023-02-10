@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-10 09:20+0000\n"
+"POT-Creation-Date: 2023-02-10 19:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1221,22 +1221,70 @@ msgstr ""
 msgid "Connect, get help, or contribute"
 msgstr ""
 
-#: store/models.py:75
+#: store/choices.py:25
 msgid "Pending"
 msgstr "در انتظار"
 
-#: store/models.py:76
-msgid "In Progress"
-msgstr "در حال انجام"
+#: store/choices.py:26
+msgid "Processing"
+msgstr ""
 
-#: store/models.py:77
+#: store/choices.py:27
+msgid "Awaiting Fulfillment"
+msgstr ""
+
+#: store/choices.py:28
+msgid "Partially Fulfilled"
+msgstr ""
+
+#: store/choices.py:29
+msgid "Fulfilled"
+msgstr ""
+
+#: store/choices.py:30
+msgid "Shipped"
+msgstr ""
+
+#: store/choices.py:31
+msgid "Out For Delivery"
+msgstr ""
+
+#: store/choices.py:32
+msgid "Delivered"
+msgstr ""
+
+#: store/choices.py:33
+#, fuzzy
+#| msgid "Canceled"
+msgid "Cancelled"
+msgstr "لغو شد"
+
+#: store/choices.py:34
+msgid "Refunded"
+msgstr ""
+
+#: store/choices.py:35
+msgid "On Hold"
+msgstr ""
+
+#: store/choices.py:36
+msgid "Returned"
+msgstr ""
+
+#: store/choices.py:37
+msgid "Exchange Requested"
+msgstr ""
+
+#: store/choices.py:38
 msgid "Completed"
 msgstr "تکمیل شد"
 
-#: store/models.py:78
-msgid "Canceled"
-msgstr "لغو شد"
+#: store/choices.py:39
+msgid "Dispute"
+msgstr ""
 
-#: store/models.py:79
-msgid "Failed"
-msgstr "ناموفق"
+#~ msgid "In Progress"
+#~ msgstr "در حال انجام"
+
+#~ msgid "Failed"
+#~ msgstr "ناموفق"
