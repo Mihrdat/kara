@@ -11,7 +11,6 @@ from .models import (
     OrderItem,
     OrderStatusLog,
 )
-from .choices import is_valid_status_transition
 from user.models import Customer
 from user.serializers import CustomerSerializer
 
@@ -123,6 +122,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class OrderCreateSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     def validate_cart_id(self, cart_id):
         try:
@@ -140,7 +140,7 @@ class OrderCreateSerializer(serializers.Serializer):
     @transaction.atomic()
     def create(self, validated_data):
         cart_id = validated_data['cart_id']
-        user = self.context['user']
+        user = validated_data['user']
         customer = Customer.objects.get(user=user)
         order = Order.objects.create(customer=customer)
 
@@ -158,39 +158,6 @@ class OrderCreateSerializer(serializers.Serializer):
         ]
 
         OrderItem.objects.bulk_create(order_items)
-        OrderStatusLog.objects.create(order=order, performer=user)
         CartItem.objects.filter(cart=cart_id).delete()
 
         return order
-
-
-class OrderUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Order
-        fields = ['status']
-
-    def update(self, instance, validated_data):
-        user = self.context['user']
-        new_status = validated_data['status']
-        current_status = OrderStatusLog.objects \
-                                       .filter(order=instance) \
-                                       .last() \
-                                       .current_status
-        if not is_valid_status_transition(current_status=current_status, new_status=new_status):
-            raise serializers.ValidationError(
-                {'detail': f'You can not change status from {current_status} to {new_status}.'})
-        OrderStatusLog.objects.create(
-            current_status=new_status, previous_status=current_status, performer=user, order=instance)
-        return super().update(instance, validated_data)
-
-
-class OrderStatusLogSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderStatusLog
-        fields = [
-            'id',
-            'previous_status',
-            'current_status',
-            'performer',
-            'order',
-        ]

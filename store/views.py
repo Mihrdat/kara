@@ -9,7 +9,6 @@ from rest_framework.mixins import (
     CreateModelMixin,
     RetrieveModelMixin,
     ListModelMixin,
-    UpdateModelMixin,
 )
 
 from .models import (
@@ -18,7 +17,6 @@ from .models import (
     Cart,
     CartItem,
     Order,
-    OrderStatusLog,
 )
 from .serializers import (
     CollectionSerializer,
@@ -29,8 +27,6 @@ from .serializers import (
     CartItemSerializer,
     OrderCreateSerializer,
     OrderSerializer,
-    OrderUpdateSerializer,
-    OrderStatusLogSerializer,
 )
 from .throttling import CartAnonRateThrottle, CartUserRateThrottle
 
@@ -110,7 +106,6 @@ class CartItemViewSet(ModelViewSet):
 class OrderViewSet(CreateModelMixin,
                    ListModelMixin,
                    RetrieveModelMixin,
-                   UpdateModelMixin,
                    GenericViewSet):
     queryset = Order.objects \
                     .select_related('customer__user') \
@@ -124,8 +119,6 @@ class OrderViewSet(CreateModelMixin,
     def get_serializer_class(self):
         if self.action == 'create':
             return OrderCreateSerializer
-        if self.action in ['update', 'partial_update']:
-            return OrderUpdateSerializer
         return OrderSerializer
 
     def create(self, request, *args, **kwargs):
@@ -134,17 +127,3 @@ class OrderViewSet(CreateModelMixin,
         order = serializer.save()
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    def get_serializer_context(self):
-        return {'user': self.request.user}
-
-
-class OrderStatusLogViewSet(ListModelMixin,
-                            RetrieveModelMixin,
-                            GenericViewSet):
-    queryset = OrderStatusLog.objects.all()
-    serializer_class = OrderStatusLogSerializer
-
-    def get_queryset(self):
-        order_id = self.kwargs['order_pk']
-        return self.queryset.filter(order_id=order_id)

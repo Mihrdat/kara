@@ -61,7 +61,7 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
     status = models.IntegerField(
-        choices=OrderStatus.CHOICES, default=OrderStatus.PENDING)
+        choices=OrderStatus.choices, default=OrderStatus.PENDING)
 
 
 class OrderItem(models.Model):
@@ -74,11 +74,9 @@ class OrderItem(models.Model):
 
 class OrderStatusLog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    previous_status = models.IntegerField(
-        choices=OrderStatus.CHOICES, default=0)
-    current_status = models.IntegerField(
-        choices=OrderStatus.CHOICES, default=OrderStatus.PENDING)
-    performer = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    previous_status = models.IntegerField(choices=OrderStatus.choices)
+    current_status = models.IntegerField(choices=OrderStatus.choices)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     order = models.ForeignKey(
         Order, on_delete=models.CASCADE, related_name='status_logs')

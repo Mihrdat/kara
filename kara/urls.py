@@ -16,8 +16,6 @@ router.register('carts', store_views.CartViewSet)
 router.register(
     'carts/(?P<cart_pk>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/items', store_views.CartItemViewSet)
 router.register('orders', store_views.OrderViewSet, basename='orders')
-router.register(
-    'orders/(?P<order_pk>\d+)/status_logs', store_views.OrderStatusLogViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
