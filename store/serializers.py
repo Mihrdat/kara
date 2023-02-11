@@ -122,7 +122,6 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class OrderCreateSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     def validate_cart_id(self, cart_id):
         try:
@@ -140,7 +139,7 @@ class OrderCreateSerializer(serializers.Serializer):
     @transaction.atomic()
     def create(self, validated_data):
         cart_id = validated_data['cart_id']
-        user = validated_data['user']
+        user = self.context['user']
         customer = Customer.objects.get(user=user)
         order = Order.objects.create(customer=customer)
 
@@ -162,3 +161,17 @@ class OrderCreateSerializer(serializers.Serializer):
         CartItem.objects.filter(cart=cart_id).delete()
 
         return order
+
+
+class OrderUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['status']
+
+    def update(self, instance, validated_data):
+        user = self.context['user']
+        status = validated_data['status']
+        last_log = OrderStatusLog.objects.filter(order=instance).last()
+        OrderStatusLog.objects.create(
+            current_status=status, previous_status=last_log.current_status, performer=user, order=instance)
+        return super().update(instance, validated_data)

@@ -78,7 +78,7 @@ class OrderStatusLog(models.Model):
         choices=OrderStatus.choices, default=0)
     current_status = models.IntegerField(
         choices=OrderStatus.choices, default=OrderStatus.PENDING)
-    performer = models.OneToOneField(
+    performer = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     order = models.ForeignKey(
         Order, on_delete=models.CASCADE, related_name='status_logs')
