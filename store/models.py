@@ -74,6 +74,7 @@ class Order(models.Model):
             previous_status=current_status, current_status=new_status, user=user, order=self)
 
         self.status = new_status
+        self.save()
 
 
 class OrderItem(models.Model):

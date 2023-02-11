@@ -9,10 +9,10 @@ from .models import (
     CartItem,
     Order,
     OrderItem,
-    OrderStatusLog,
 )
 from user.models import Customer
 from user.serializers import CustomerSerializer
+from .choices import map_status
 
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -108,6 +108,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer()
     items = OrderItemSerializer(many=True)
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -118,6 +119,10 @@ class OrderSerializer(serializers.ModelSerializer):
             'items',
             'status',
         ]
+
+    def get_status(self, order):
+        status = order.status
+        return map_status(status)
 
 
 class OrderCreateSerializer(serializers.Serializer):
