@@ -1,6 +1,21 @@
 from django.db import models
 from django.utils.translation import gettext as _
 
+"""
+1.  Pending: The order has been placed, but payment has not been confirmed.
+2.  Processing: Payment has been confirmed and the order is being prepared for shipment.
+3.  Awaiting fulfillment: The order is waiting to be fulfilled, either because the required items are out of stock or because additional information is needed.
+4.  Fulfilled: All items in the order have been fulfilled and are ready to be shipped.
+5.  Shipped: The order has been shipped and is on its way to the customer.
+6.  Delivered: The order has been delivered to the customer.
+7.  Cancelled: The order has been cancelled either by the customer or by the retailer.
+8.  Refunded: The customer has requested a refund and it has been processed.
+9.  On hold: The order has been put on hold for further review or due to a problem with payment.
+10. Returned: The customer has returned the order and it is waiting to be processed by the retailer.
+11. Exchange requested: The customer has requested to exchange the order for a different item.
+12. Completed: The order has been successfully completed, and the customer is satisfied with their purchase.
+"""
+
 
 class OrderStatus(models.IntegerChoices):
     PENDING = 1, _('Pending')

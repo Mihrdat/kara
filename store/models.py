@@ -1,7 +1,8 @@
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator
-from .choices import OrderStatus
+from django.core.exceptions import ValidationError
+from .choices import OrderStatus, is_valid_status_transition
 from uuid import uuid4
 from user.models import Customer
 
@@ -62,6 +63,17 @@ class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
     status = models.IntegerField(
         choices=OrderStatus.choices, default=OrderStatus.PENDING)
+
+    def change_status(self, new_status, user=None):
+        current_status = self.status
+        if not is_valid_status_transition(current_status=current_status, new_status=new_status):
+            raise ValidationError(
+                f'Cannot change status from {OrderStatus.labels[current_status]} to {OrderStatus.labels[new_status]}.')
+
+        OrderStatusLog.objects.create(
+            previous_status=current_status, current_status=new_status, user=user, order=self)
+
+        self.status = new_status
 
 
 class OrderItem(models.Model):
