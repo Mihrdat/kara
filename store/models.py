@@ -75,7 +75,7 @@ class OrderItem(models.Model):
 class OrderStatusLog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     previous_status = models.IntegerField(
-        choices=OrderStatus.choices, default=OrderStatus.PENDING)
+        choices=OrderStatus.choices, default=0)
     current_status = models.IntegerField(
         choices=OrderStatus.choices, default=OrderStatus.PENDING)
     performer = models.OneToOneField(
