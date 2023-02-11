@@ -11,6 +11,7 @@ from .models import (
     OrderItem,
     OrderStatusLog,
 )
+from .choices import is_valid_status_transition
 from user.models import Customer
 from user.serializers import CustomerSerializer
 
@@ -170,10 +171,16 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         user = self.context['user']
-        status = validated_data['status']
-        last_log = OrderStatusLog.objects.filter(order=instance).last()
+        new_status = validated_data['status']
+        current_status = OrderStatusLog.objects \
+                                       .filter(order=instance) \
+                                       .last() \
+                                       .current_status
+        if not is_valid_status_transition(current_status=current_status, new_status=new_status):
+            raise serializers.ValidationError(
+                {'detail': f'You can not change status from {current_status} to {new_status}.'})
         OrderStatusLog.objects.create(
-            current_status=status, previous_status=last_log.current_status, performer=user, order=instance)
+            current_status=new_status, previous_status=current_status, performer=user, order=instance)
         return super().update(instance, validated_data)
 
 
