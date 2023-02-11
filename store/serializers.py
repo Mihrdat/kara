@@ -108,7 +108,6 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer()
     items = OrderItemSerializer(many=True)
-    status = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -119,9 +118,6 @@ class OrderSerializer(serializers.ModelSerializer):
             'items',
             'status',
         ]
-
-    def get_status(self, order):
-        return order.status_logs.last().current_status
 
 
 class OrderCreateSerializer(serializers.Serializer):

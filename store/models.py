@@ -60,6 +60,8 @@ class CartItem(models.Model):
 class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
+    status = models.IntegerField(
+        choices=OrderStatus.choices, default=OrderStatus.PENDING)
 
 
 class OrderItem(models.Model):
