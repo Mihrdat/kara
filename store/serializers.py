@@ -175,3 +175,15 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
         OrderStatusLog.objects.create(
             current_status=status, previous_status=last_log.current_status, performer=user, order=instance)
         return super().update(instance, validated_data)
+
+
+class OrderStatusLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderStatusLog
+        fields = [
+            'id',
+            'previous_status',
+            'current_status',
+            'performer',
+            'order',
+        ]

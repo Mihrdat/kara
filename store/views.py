@@ -18,6 +18,7 @@ from .models import (
     Cart,
     CartItem,
     Order,
+    OrderStatusLog,
 )
 from .serializers import (
     CollectionSerializer,
@@ -29,6 +30,7 @@ from .serializers import (
     OrderCreateSerializer,
     OrderSerializer,
     OrderUpdateSerializer,
+    OrderStatusLogSerializer,
 )
 from .throttling import CartAnonRateThrottle, CartUserRateThrottle
 
@@ -135,3 +137,14 @@ class OrderViewSet(CreateModelMixin,
 
     def get_serializer_context(self):
         return {'user': self.request.user}
+
+
+class OrderStatusLogViewSet(ListModelMixin,
+                            RetrieveModelMixin,
+                            GenericViewSet):
+    queryset = OrderStatusLog.objects.all()
+    serializer_class = OrderStatusLogSerializer
+
+    def get_queryset(self):
+        order_id = self.kwargs['order_pk']
+        return self.queryset.filter(order_id=order_id)
