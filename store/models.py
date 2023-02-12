@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
@@ -64,6 +64,7 @@ class Order(models.Model):
     status = models.IntegerField(
         choices=OrderStatus.choices, default=OrderStatus.PENDING)
 
+    @transaction.atomic()
     def change_status(self, new_status, user=None):
         current_status = self.status
         if not is_valid_status_transition(current_status=current_status, new_status=new_status):
@@ -74,7 +75,7 @@ class Order(models.Model):
             previous_status=current_status, current_status=new_status, user=user, order=self)
 
         self.status = new_status
-        self.save()
+        self.save(update_fields=['status'])
 
 
 class OrderItem(models.Model):
