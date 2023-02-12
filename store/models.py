@@ -1,7 +1,10 @@
-from django.db import models
-from user.models import Customer
+from django.db import models, transaction
+from django.conf import settings
 from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
+from .choices import OrderStatus, is_valid_status_transition
 from uuid import uuid4
+from user.models import Customer
 
 
 class Collection(models.Model):
@@ -56,17 +59,23 @@ class CartItem(models.Model):
 
 
 class Order(models.Model):
-    class Status(models.IntegerChoices):
-        PENDING = 0
-        IN_PROGRESS = 1
-        COMPLETED = 2
-        CANCELED = 3
-        FAILED = 4
-
     created_at = models.DateTimeField(auto_now_add=True)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
     status = models.IntegerField(
-        choices=Status.choices, default=Status.PENDING)
+        choices=OrderStatus.choices, default=OrderStatus.NEW)
+
+    @transaction.atomic()
+    def change_status(self, new_status, user=None):
+        current_status = self.status
+        if not is_valid_status_transition(current_status=current_status, new_status=new_status):
+            raise ValidationError(
+                f'Cannot change status from {OrderStatus.labels[current_status]} to {OrderStatus.labels[new_status]}.')
+
+        OrderStatusLog.objects.create(
+            previous_status=current_status, current_status=new_status, user=user, order=self)
+
+        self.status = new_status
+        self.save(update_fields=['status'])
 
 
 class OrderItem(models.Model):
@@ -78,7 +87,10 @@ class OrderItem(models.Model):
 
 
 class OrderStatusLog(models.Model):
-    status = models.CharField(max_length=55, choices=Order.Status.choices)
     created_at = models.DateTimeField(auto_now_add=True)
+    previous_status = models.IntegerField(choices=OrderStatus.choices)
+    current_status = models.IntegerField(choices=OrderStatus.choices)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     order = models.ForeignKey(
         Order, on_delete=models.CASCADE, related_name='status_logs')

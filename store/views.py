@@ -100,7 +100,9 @@ class CartItemViewSet(ModelViewSet):
         return CartItemSerializer
 
     def get_serializer_context(self):
-        return {'cart_id': self.kwargs['cart_pk']}
+        context = super().get_serializer_context()
+        context['cart_id'] = self.kwargs['cart_pk']
+        return context
 
 
 class OrderViewSet(CreateModelMixin,
