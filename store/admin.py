@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.db.models.aggregates import Count
 from django.utils.html import format_html, urlencode
-from .models import Collection, Product
+from .models import Collection, Product, Order
 
 
 @admin.register(Product)
@@ -29,3 +29,11 @@ class CollectionAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(products_count=Count('products'))
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['created_at', 'customer', 'status']
+    list_per_page = 15
+    list_editable = ['status']
+    list_select_related = ['customer__user']
