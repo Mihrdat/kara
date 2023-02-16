@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.shortcuts import render
 from django.urls import reverse, path
 from django.shortcuts import redirect
 from django.db.models.aggregates import Count
@@ -42,16 +43,29 @@ class OrderAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         custom_urls = [
+            path('<int:order_id>/confirm_paid/',
+                 self.confirm_view,
+                 name='store_order_confirm_paid'
+                 ),
+
             path('<int:order_id>/paid/',
                  self.paid_view,
-                 name='store_order_paid'),
+                 name='store_order_paid'
+                 ),
         ]
         return custom_urls + super().get_urls()
 
     def paid_button(self, order):
-        url = reverse('admin:store_order_paid', args=[order.id])
+        url = reverse('admin:store_order_confirm_paid', args=[order.id])
         if order.status == OrderStatus.NEW:
-            return format_html('<a href="{}" onclick="return confirm(\'Are you sure you want to mark this order as paid?\')">{}</a>', url, 'Change')
+            return format_html('<a href="{}">{}</a>', url, 'Change')
+
+    def confirm_view(self, request, order_id):
+        order = self.get_object(request, order_id)
+        context = {
+            'order': order,
+        }
+        return render(request, 'confirm_paid.html', context)
 
     def paid_view(self, request, order_id):
         order = self.get_object(request, order_id)
