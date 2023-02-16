@@ -51,7 +51,7 @@ class OrderAdmin(admin.ModelAdmin):
     def paid_button(self, order):
         url = reverse('admin:store_order_paid', args=[order.id])
         if order.status == OrderStatus.NEW:
-            return format_html('<a href="{}">{}</a>', url, 'Change')
+            return format_html('<a href="{}" onclick="return confirm(\'Are you sure you want to mark this order as paid?\')">{}</a>', url, 'Change')
 
     def paid_view(self, request, order_id):
         order = self.get_object(request, order_id)
