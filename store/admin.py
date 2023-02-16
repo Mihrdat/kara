@@ -1,4 +1,4 @@
-from django.contrib import admin, messages
+from django.contrib import admin
 from django.urls import reverse, path
 from django.shortcuts import redirect
 from django.db.models.aggregates import Count
