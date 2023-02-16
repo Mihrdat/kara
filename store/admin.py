@@ -35,26 +35,26 @@ class CollectionAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['created_at', 'customer', 'status', 'change_status']
+    list_display = ['created_at', 'customer', 'status', 'paid_button']
     list_per_page = 15
     list_editable = ['status']
     list_select_related = ['customer__user']
 
     def get_urls(self):
         custom_urls = [
-            path('do_change_status/<int:order_id>/',
-                 self.do_change_status,
-                 name='do_change_status'
+            path('<int:order_id>/paid/',
+                 self.paid_view,
+                 name='store_order_paid'
                  ),
         ]
         return custom_urls + super().get_urls()
 
-    def change_status(self, order):
-        url = reverse('admin:do_change_status', args=[order.id])
+    def paid_button(self, order):
+        url = reverse('admin:store_order_paid', args=[order.id])
         button = 'Change' if order.status == OrderStatus.NEW else ''
         return format_html('<a href="{}">{}</a>', url, button)
 
-    def do_change_status(self, request, order_id):
+    def paid_view(self, request, order_id):
         order = Order.objects.get(id=order_id)
         order.status = OrderStatus.PROCESSING
         order.save(update_fields=['status'])
