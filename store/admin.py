@@ -44,8 +44,7 @@ class OrderAdmin(admin.ModelAdmin):
         custom_urls = [
             path('<int:order_id>/paid/',
                  self.paid_view,
-                 name='store_order_paid'
-                 ),
+                 name='store_order_paid'),
         ]
         return custom_urls + super().get_urls()
 
@@ -55,8 +54,8 @@ class OrderAdmin(admin.ModelAdmin):
         return format_html('<a href="{}">{}</a>', url, button)
 
     def paid_view(self, request, order_id):
-        order = Order.objects.get(id=order_id)
-        order.status = OrderStatus.PROCESSING
-        order.save(update_fields=['status'])
+        order = self.get_object(request, order_id)
+        order.change_status(
+            new_status=OrderStatus.PROCESSING, user=request.user)
         self.message_user(request, 'Status were successfully updated.')
         return redirect('admin:store_order_changelist')
