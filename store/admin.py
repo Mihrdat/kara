@@ -50,8 +50,8 @@ class OrderAdmin(admin.ModelAdmin):
 
     def paid_button(self, order):
         url = reverse('admin:store_order_paid', args=[order.id])
-        button = 'Change' if order.status == OrderStatus.NEW else ''
-        return format_html('<a href="{}">{}</a>', url, button)
+        if order.status == OrderStatus.NEW:
+            return format_html('<a href="{}">{}</a>', url, 'Change')
 
     def paid_view(self, request, order_id):
         order = self.get_object(request, order_id)
