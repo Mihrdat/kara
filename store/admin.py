@@ -66,6 +66,7 @@ class OrderAdmin(admin.ModelAdmin):
             'opts': Order._meta,
             'site_header': admin.site.site_header,
             'order': order,
+            'original': order,
         }
         return render(request, 'confirm_paid.html', context)
 
