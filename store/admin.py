@@ -38,7 +38,6 @@ class CollectionAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['created_at', 'customer', 'status', 'paid_button']
     list_per_page = 15
-    list_editable = ['status']
     list_select_related = ['customer__user']
 
     def get_urls(self):
