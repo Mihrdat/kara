@@ -39,6 +39,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ['created_at', 'customer', 'status', 'paid_button']
     list_per_page = 15
     list_select_related = ['customer__user']
+    list_filter = ['status']
 
     def get_urls(self):
         custom_urls = [
@@ -66,6 +67,7 @@ class OrderAdmin(admin.ModelAdmin):
             'site_header': admin.site.site_header,
             'order': order,
             'original': order,
+            **self.admin_site.each_context(request)
         }
         return render(request, 'confirm_paid.html', context)
 
