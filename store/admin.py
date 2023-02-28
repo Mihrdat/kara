@@ -63,10 +63,10 @@ class OrderAdmin(admin.ModelAdmin):
     def confirm_view(self, request, order_id):
         order = self.get_object(request, order_id)
         context = {
+            **self.admin_site.each_context(request),
             'opts': Order._meta,
             'order': order,
             'original': order,
-            **self.admin_site.each_context(request)
         }
         return render(request, 'confirm_paid.html', context)
 
