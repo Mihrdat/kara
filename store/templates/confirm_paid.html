@@ -1,0 +1,12 @@
+{% extends 'admin/change_form.html' %}
+
+{% block content %}
+<h1>
+  Are you sure you want to mark this order as paid?
+</h1>
+<form method="post" style="display: flex; font-size: 1.25rem; gap: 1rem">
+  {% csrf_token %}
+  <a href="{% url 'admin:store_order_paid' order_id=order.id %}">Yes</a>
+  <a href="{% url 'admin:store_order_changelist' %}">No</a>
+</form>
+{% endblock %}

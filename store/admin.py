@@ -1,8 +1,11 @@
 from django.contrib import admin
-from django.urls import reverse
+from django.shortcuts import render
+from django.urls import reverse, path
+from django.shortcuts import redirect
 from django.db.models.aggregates import Count
 from django.utils.html import format_html, urlencode
-from .models import Collection, Product
+from .models import Collection, Product, Order
+from .choices import OrderStatus
 
 
 @admin.register(Product)
@@ -29,3 +32,47 @@ class CollectionAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(products_count=Count('products'))
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['created_at', 'customer', 'status', 'paid_button']
+    list_per_page = 15
+    list_select_related = ['customer__user']
+    list_filter = ['status']
+
+    def get_urls(self):
+        custom_urls = [
+            path('<int:order_id>/confirm_paid/',
+                 self.confirm_view,
+                 name='store_order_confirm_paid'
+                 ),
+
+            path('<int:order_id>/paid/',
+                 self.paid_view,
+                 name='store_order_paid'
+                 ),
+        ]
+        return custom_urls + super().get_urls()
+
+    def paid_button(self, order):
+        url = reverse('admin:store_order_confirm_paid', args=[order.id])
+        if order.status == OrderStatus.NEW:
+            return format_html('<a href="{}">{}</a>', url, 'Change')
+
+    def confirm_view(self, request, order_id):
+        order = self.get_object(request, order_id)
+        context = {
+            **self.admin_site.each_context(request),
+            'opts': Order._meta,
+            'order': order,
+            'original': order,
+        }
+        return render(request, 'confirm_paid.html', context)
+
+    def paid_view(self, request, order_id):
+        order = self.get_object(request, order_id)
+        order.change_status(
+            new_status=OrderStatus.PROCESSING, user=request.user)
+        self.message_user(request, 'Status were successfully updated.')
+        return redirect('admin:store_order_changelist')
