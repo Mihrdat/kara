@@ -94,3 +94,12 @@ class OrderStatusLog(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     order = models.ForeignKey(
         Order, on_delete=models.CASCADE, related_name='status_logs')
+
+
+class Review(models.Model):
+    description = models.TextField()
+    date = models.DateField(auto_now_add=True)
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
