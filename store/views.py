@@ -129,3 +129,7 @@ class OrderViewSet(CreateModelMixin,
         order = serializer.save()
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ReviewViewSet(ModelViewSet):
+    pass
