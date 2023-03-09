@@ -17,6 +17,7 @@ from .models import (
     Cart,
     CartItem,
     Order,
+    Review,
 )
 from .serializers import (
     CollectionSerializer,
@@ -27,6 +28,7 @@ from .serializers import (
     CartItemSerializer,
     OrderCreateSerializer,
     OrderSerializer,
+    ReviewSerializer,
 )
 from .throttling import CartAnonRateThrottle, CartUserRateThrottle
 
@@ -129,3 +131,16 @@ class OrderViewSet(CreateModelMixin,
         order = serializer.save()
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ReviewViewSet(ModelViewSet):
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        return Review.objects.filter(product_id=self.kwargs['product_pk'])
+
+    def get_serializer_context(self):
+        return {
+            'product_id': self.kwargs['product_pk'],
+            'user': self.request.user
+        }
