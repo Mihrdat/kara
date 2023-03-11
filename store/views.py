@@ -136,6 +136,7 @@ class OrderViewSet(CreateModelMixin,
 class ReviewViewSet(ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return self.get_queryset.filter(product_id=self.kwargs['product_pk'])
