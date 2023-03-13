@@ -31,6 +31,7 @@ from .serializers import (
     ReviewSerializer,
 )
 from .throttling import CartAnonRateThrottle, CartUserRateThrottle
+from .permissions import IsOwnerOrReadOnly
 
 from user.models import Customer
 
@@ -136,7 +137,7 @@ class OrderViewSet(CreateModelMixin,
 class ReviewViewSet(ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOwnerOrReadOnly]
 
     def get_queryset(self):
         return self.get_queryset.filter(product_id=self.kwargs['product_pk'])
