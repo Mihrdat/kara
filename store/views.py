@@ -132,18 +132,3 @@ class OrderViewSet(CreateModelMixin,
         order = serializer.save()
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class ReviewViewSet(ModelViewSet):
-    queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
-    permission_classes = [IsOwnerOrReadOnly]
-
-    def get_queryset(self):
-        return self.get_queryset.filter(product_id=self.kwargs['product_pk'])
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['product_id'] = self.kwargs['product_pk']
-        context['user'] = self.request.user
-        return context
