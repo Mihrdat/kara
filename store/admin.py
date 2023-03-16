@@ -8,6 +8,22 @@ from .models import Collection, Product, Order
 from .choices import OrderStatus
 
 
+class IdFilter(admin.SimpleListFilter):
+    title = 'ID'
+    parameter_name = 'id'
+
+    def lookups(self, request, model_admin):
+        return []
+
+    def queryset(self, request, queryset):
+        id_value = request.GET.get('id_value')
+        if id_value:
+            return queryset.filter(id=id_value)
+        return queryset
+
+    template = 'filter.html'
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['name', 'created_at', 'unit_price', 'collection']
@@ -39,7 +55,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ['created_at', 'customer', 'status', 'paid_button']
     list_per_page = 15
     list_select_related = ['customer__user']
-    list_filter = ['status']
+    list_filter = ['status', IdFilter]
 
     def get_urls(self):
         custom_urls = [

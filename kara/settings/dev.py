@@ -4,9 +4,7 @@ SECRET_KEY = 'django-insecure-v*!upq!^puv^gzfj6&lnssm5q7iu2jgl$vue=iqwe!x*@z#3^$
 
 DEBUG = True
 
-REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'custom.pagination.GlobalLimitOffsetPagination',
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-    ),
-}
+INSTALLED_APPS += [
+    'debug_toolbar',
+    'django_extensions',
+]
