@@ -9,7 +9,6 @@ from .models import (
     CartItem,
     Order,
     OrderItem,
-    Review,
 )
 from user.models import Customer
 from user.serializers import CustomerSerializer

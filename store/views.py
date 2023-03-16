@@ -17,7 +17,6 @@ from .models import (
     Cart,
     CartItem,
     Order,
-    Review,
 )
 from .serializers import (
     CollectionSerializer,
@@ -28,10 +27,8 @@ from .serializers import (
     CartItemSerializer,
     OrderCreateSerializer,
     OrderSerializer,
-    ReviewSerializer,
 )
 from .throttling import CartAnonRateThrottle, CartUserRateThrottle
-from .permissions import IsOwnerOrReadOnly
 
 from user.models import Customer
 
