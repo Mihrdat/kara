@@ -167,19 +167,3 @@ class OrderCreateSerializer(serializers.Serializer):
         CartItem.objects.filter(cart=cart_id).delete()
 
         return order
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Review
-        fields = [
-            'id',
-            'description',
-            'date',
-            'user',
-        ]
-
-    def create(self, validated_data):
-        product_id = self.context['product_id']
-        user = self.context['user']
-        return Review.objects.create(product_id=product_id, user=user, **validated_data)
