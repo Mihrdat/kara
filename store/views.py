@@ -85,12 +85,11 @@ class CartViewSet(CreateModelMixin,
 
 
 class CartItemViewSet(ModelViewSet):
-    queryset = CartItem.objects.select_related('product')
-
     def get_queryset(self):
-        return self.queryset \
-                   .filter(cart_id=self.kwargs['cart_pk']) \
-                   .select_related('product')
+        return CartItem.objects \
+                       .select_related('product') \
+                       .filter(cart_id=self.kwargs['cart_pk']) \
+                       .select_related('product')
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -109,14 +108,14 @@ class OrderViewSet(CreateModelMixin,
                    ListModelMixin,
                    RetrieveModelMixin,
                    GenericViewSet):
-    queryset = Order.objects \
-                    .select_related('customer__user') \
-                    .prefetch_related('items__product')
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         customer = Customer.objects.get(user=self.request.user)
-        return self.queryset.filter(customer=customer)
+        return Order.objects \
+                    .filter(customer=customer) \
+                    .select_related('customer__user') \
+                    .prefetch_related('items__product')
 
     def get_serializer_class(self):
         if self.action == 'create':
