@@ -85,7 +85,6 @@ class CartViewSet(CreateModelMixin,
 class CartItemViewSet(ModelViewSet):
     def get_queryset(self):
         return CartItem.objects \
-                       .select_related('product') \
                        .filter(cart_id=self.kwargs['cart_pk']) \
                        .select_related('product')
 
