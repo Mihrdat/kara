@@ -54,13 +54,13 @@ class CartItemSerializer(serializers.ModelSerializer):
         return cart_item.quantity * cart_item.product.unit_price
 
 
-class CartItemUpdateSerializer(serializers.ModelSerializer):
+class UpdateCartItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
         fields = ['quantity']
 
 
-class CartItemCreateSerializer(serializers.ModelSerializer):
+class CreateCartItemSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField()
 
     class Meta:
@@ -125,7 +125,7 @@ class OrderSerializer(serializers.ModelSerializer):
         return map_status(status)
 
 
-class OrderCreateSerializer(serializers.Serializer):
+class CreateOrderSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 

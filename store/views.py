@@ -22,10 +22,10 @@ from .serializers import (
     CollectionSerializer,
     ProductSerializer,
     CartSerializer,
-    CartItemCreateSerializer,
-    CartItemUpdateSerializer,
+    CreateCartItemSerializer,
+    UpdateCartItemSerializer,
     CartItemSerializer,
-    OrderCreateSerializer,
+    CreateOrderSerializer,
     OrderSerializer,
 )
 from .throttling import CartAnonRateThrottle, CartUserRateThrottle
@@ -90,9 +90,9 @@ class CartItemViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         if self.action == 'create':
-            return CartItemCreateSerializer
+            return CreateCartItemSerializer
         elif self.action in ['update', 'partial_update']:
-            return CartItemUpdateSerializer
+            return UpdateCartItemSerializer
         return CartItemSerializer
 
     def get_serializer_context(self):
@@ -116,7 +116,7 @@ class OrderViewSet(CreateModelMixin,
 
     def get_serializer_class(self):
         if self.action == 'create':
-            return OrderCreateSerializer
+            return CreateOrderSerializer
         return OrderSerializer
 
     def create(self, request, *args, **kwargs):
