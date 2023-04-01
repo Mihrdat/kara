@@ -13,7 +13,7 @@ class SendOTPSerializer(serializers.Serializer):
 
     def validate_phone_number(self, phone_number):
         if not is_valid_phone_number(phone_number):
-            raise serializers.ValidationError('Please enter a valid number.')
+            raise serializers.ValidationError("Please enter a valid number.")
         return phone_number
 
 
@@ -22,11 +22,11 @@ class VerifySerializer(serializers.Serializer):
     code = serializers.CharField()
 
     def validate(self, attrs):
-        phone_number = attrs['phone_number']
-        code = attrs['code']
+        phone_number = attrs["phone_number"]
+        code = attrs["code"]
         value = cache.get(key=phone_number)
         if value != code:
-            raise serializers.ValidationError('The given code is invalid.')
+            raise serializers.ValidationError("The given code is invalid.")
 
         return attrs
 
@@ -34,7 +34,7 @@ class VerifySerializer(serializers.Serializer):
 class SimpleUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'phone_number']
+        fields = ["id", "username", "first_name", "last_name", "phone_number"]
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -42,10 +42,10 @@ class CustomerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Customer
-        fields = ['id', 'birth_date', 'user']
+        fields = ["id", "birth_date", "user"]
 
 
 class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Token
-        fields = ['key', 'user_id']
+        fields = ["key", "user_id"]
