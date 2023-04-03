@@ -4,3 +4,4 @@
 autopep8
 django-extensions
 django-debug-toolbar == 3.4.0
+model-bakery == 1.10.3
