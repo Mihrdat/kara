@@ -94,6 +94,9 @@ class OrderAdmin(admin.ModelAdmin):
         }
         return render(request, "confirm_paid.html", context)
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related("items__product")
+
     def paid_view(self, request, order_id):
         order = self.get_object(request, order_id)
         order.change_status(new_status=OrderStatus.PROCESSING, user=request.user)
