@@ -1,0 +1,19 @@
+{% load i18n %}
+<details data-filter-title="{{ title }}" open>
+    <summary>
+        {% blocktranslate with filter_title=title %} By {{ filter_title }} {% endblocktranslate %}
+    </summary>
+    <ul>
+        {% for choice in choices %}
+        <li {% if choice.selected %} class="selected" {% endif %}>
+            {% if choice.display != "input" %}
+            <a href="{{ choice.query_string|iriencode }}">{{ choice.display }}</a>
+            {% else %}
+            <form method="GET" action="{% url 'admin:store_order_changelist' %}">
+                <input type="number" required autocomplete="off" name="id" placeholder="Enter ID">
+            </form>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</details>

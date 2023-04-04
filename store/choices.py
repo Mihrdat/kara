@@ -14,14 +14,14 @@ from django.utils.translation import gettext as _
 
 
 class OrderStatus(models.IntegerChoices):
-    NEW = 0, _('New')
-    PROCESSING = 1, _('Processing')
-    FULFILLED = 2, _('Fulfilled')
-    SHIPPED = 3, _('Shipped')
-    DELIVERED = 4, _('Delivered')
-    CANCELLED = 5, _('Cancelled')
-    RETURNED = 6, _('Returned')
-    COMPLETED = 7, _('Completed')
+    NEW = 0, _("New")
+    PROCESSING = 1, _("Processing")
+    FULFILLED = 2, _("Fulfilled")
+    SHIPPED = 3, _("Shipped")
+    DELIVERED = 4, _("Delivered")
+    CANCELLED = 5, _("Cancelled")
+    RETURNED = 6, _("Returned")
+    COMPLETED = 7, _("Completed")
 
 
 STATUS_TRANSITION_DIAGRAM = {
@@ -50,7 +50,7 @@ STATUS_TRANSITION_DIAGRAM = {
         OrderStatus.CANCELLED,
         OrderStatus.PROCESSING,
     ],
-    OrderStatus.COMPLETED: []
+    OrderStatus.COMPLETED: [],
 }
 
 

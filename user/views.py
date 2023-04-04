@@ -25,24 +25,33 @@ class CustomerViewSet(GenericViewSet):
     serializer_class = CustomerSerializer
     permission_classes = [IsAuthenticated]
 
-    @action(detail=False, methods=['POST'], permission_classes=[AllowAny], throttle_classes=[SendOTPAnonRateThrottle])
+    @action(
+        detail=False,
+        methods=["POST"],
+        permission_classes=[AllowAny],
+        throttle_classes=[SendOTPAnonRateThrottle],
+    )
     def send_otp(self, request):
         serializer = SendOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        phone_number = serializer.validated_data['phone_number']
-        code = generate_random_code(number_of_digits=6)
+        phone_number = serializer.validated_data["phone_number"]
+        code = generate_random_code(number_of_digits=5)
         cache.set(key=phone_number, value=code, timeout=2 * 60)
         print(code)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['POST'], permission_classes=[AllowAny])
+    @action(detail=False, methods=["POST"], permission_classes=[AllowAny])
     def verify(self, request):
         serializer = VerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        phone_number = serializer.validated_data['phone_number']
+        phone_number = serializer.validated_data["phone_number"]
         user, created = User.objects.get_or_create(
-            phone_number=phone_number, password=make_password(None))
+            phone_number=phone_number, password=make_password(None)
+        )
         token, created = Token.objects.get_or_create(user=user)
         customer, created = Customer.objects.get_or_create(user=user)
         serializer = TokenSerializer(token)
-        return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
