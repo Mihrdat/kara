@@ -21,8 +21,8 @@ class Collection(models.Model):
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-    description = models.TextField(blank=True)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
     created_at = models.DateField(auto_now_add=True)
     unit_price = models.DecimalField(max_digits=6, decimal_places=2)
     collection = models.ForeignKey(

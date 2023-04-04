@@ -9,9 +9,8 @@
             {% if choice.display != "input" %}
             <a href="{{ choice.query_string|iriencode }}">{{ choice.display }}</a>
             {% else %}
-            <form method="POST" action="{% url 'admin:store_order_changelist' %}">
-                {% csrf_token %}
-                <input type="number" required autocomplete="off" name="input_id" placeholder="Enter ID">
+            <form method="GET" action="{% url 'admin:store_order_changelist' %}">
+                <input type="number" required autocomplete="off" name="id" placeholder="Enter ID">
             </form>
             {% endif %}
         </li>

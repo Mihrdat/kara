@@ -35,7 +35,7 @@ class CustomerViewSet(GenericViewSet):
         serializer = SendOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone_number = serializer.validated_data["phone_number"]
-        code = generate_random_code(number_of_digits=6)
+        code = generate_random_code(number_of_digits=5)
         cache.set(key=phone_number, value=code, timeout=2 * 60)
         print(code)
         return Response(serializer.data)

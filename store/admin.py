@@ -40,7 +40,7 @@ class FilterByID(admin.SimpleListFilter):
     template = "filter_by_id.html"
 
     def lookups(self, request, model_admin):
-        value = request.POST.get("input_id")
+        value = request.GET.get("id")
         return [(value, "input")]
 
     def queryset(self, request, queryset):
@@ -51,7 +51,14 @@ class FilterByID(admin.SimpleListFilter):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ["pk", "created_at", "customer", "status", "paid_button"]
+    list_display = [
+        "pk",
+        "created_at",
+        "customer",
+        "status",
+        "paid_button",
+        "total_price",
+    ]
     list_per_page = 15
     list_select_related = ["customer__user"]
     list_filter = ["status", FilterByID]
@@ -66,6 +73,11 @@ class OrderAdmin(admin.ModelAdmin):
             path("<int:order_id>/paid/", self.paid_view, name="store_order_paid"),
         ]
         return custom_urls + super().get_urls()
+
+    def total_price(self, order):
+        return sum(
+            [item.quantity * item.product.unit_price for item in order.items.all()]
+        )
 
     def paid_button(self, order):
         url = reverse("admin:store_order_confirm_paid", args=[order.id])
