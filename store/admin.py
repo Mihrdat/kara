@@ -4,13 +4,23 @@ from django.urls import reverse, path
 from django.shortcuts import redirect
 from django.db.models.aggregates import Count
 from django.utils.html import format_html, urlencode
-from .models import Collection, Product, Order
+from .models import Collection, Product, Order, InventoryMovement
 from .choices import OrderStatus
+
+
+@admin.register(InventoryMovement)
+class ProductInventoryAdmin(admin.ModelAdmin):
+    list_display = [
+        "product",
+        "type",
+        "reason",
+        "quantity",
+    ]
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ["name", "created_at", "unit_price", "collection"]
+    list_display = ["name", "created_at", "unit_price", "collection", "inventory"]
     list_editable = ["unit_price"]
     list_filter = ["collection", "created_at"]
     list_per_page = 15

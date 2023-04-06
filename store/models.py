@@ -25,6 +25,7 @@ class Product(models.Model):
     description = models.TextField(blank=True, null=True)
     created_at = models.DateField(auto_now_add=True)
     unit_price = models.DecimalField(max_digits=6, decimal_places=2)
+    inventory = models.IntegerField(default=0)
     collection = models.ForeignKey(
         Collection, on_delete=models.PROTECT, related_name="products"
     )
@@ -41,6 +42,33 @@ class ProductImage(models.Model):
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="images"
     )
+
+
+class InventoryMovement(models.Model):
+    class ReasonChoices(models.IntegerChoices):
+        CEO_PURCHASE = (0, "CEO purchase")
+        ORDERED = (1, "Ordered")
+        RETURNED = (2, "Returned")
+        DAMAGED = (3, "Damaged")
+
+    class TypeChoices(models.IntegerChoices):
+        INCREMENTAL = (0, "Incremental")
+        DECREMENTAL = (1, "Decremental")
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=0)
+    created_at = models.DateField(auto_now=True)
+    reason = models.IntegerField(choices=ReasonChoices.choices)
+    type = models.IntegerField(choices=TypeChoices.choices)
+
+    def save(self, *args, **kwargs):
+        if self.reason in [0, 1]:
+            self.product.inventory += self.quantity
+            self.product.save(update_fields=["inventory"])
+        if self.reason in [2, 3]:
+            self.product.inventory -= self.quantity
+            self.product.save(update_fields=["inventory"])
+        super().save(*args, **kwargs)
 
 
 class Cart(models.Model):
