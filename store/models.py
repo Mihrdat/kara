@@ -46,14 +46,17 @@ class ProductImage(models.Model):
 
 class InventoryMovement(models.Model):
     class ReasonChoices(models.IntegerChoices):
-        CEO_PURCHASE = (0, "CEO purchase")
-        ORDERED = (1, "Ordered")
-        RETURNED = (2, "Returned")
-        DAMAGED = (3, "Damaged")
+        CEO_PURCHASE = 0, "CEO purchase"
+        ORDERED = 1, "Ordered"
+        RETURNED = 2, "Returned"
+        DAMAGED = 3, "Damaged"
 
     class TypeChoices(models.IntegerChoices):
-        INCREMENTAL = (0, "Incremental")
-        DECREMENTAL = (1, "Decremental")
+        INCREMENTAL = 0, "Incremental"
+        DECREMENTAL = 1, "Decremental"
+
+    INCREMENTAL_REASONS = [ReasonChoices.CEO_PURCHASE, ReasonChoices.RETURNED]
+    DECREMENTAL_REASONS = [ReasonChoices.CEO_PURCHASE, ReasonChoices.RETURNED]
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
@@ -62,12 +65,11 @@ class InventoryMovement(models.Model):
     type = models.IntegerField(choices=TypeChoices.choices)
 
     def save(self, *args, **kwargs):
-        if self.reason in [0, 1]:
+        if self.reason in self.INCREMENTAL_REASONS:
             self.product.inventory += self.quantity
-            self.product.save(update_fields=["inventory"])
-        if self.reason in [2, 3]:
+        elif self.reason in self.DECREMENTAL_REASONS:
             self.product.inventory -= self.quantity
-            self.product.save(update_fields=["inventory"])
+        self.product.save(update_fields=["inventory"])
         super().save(*args, **kwargs)
 
 

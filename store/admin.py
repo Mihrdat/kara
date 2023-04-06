@@ -9,13 +9,21 @@ from .choices import OrderStatus
 
 
 @admin.register(InventoryMovement)
-class ProductInventoryAdmin(admin.ModelAdmin):
+class InventoryMovementAdmin(admin.ModelAdmin):
     list_display = [
         "product",
-        "type",
         "reason",
-        "quantity",
+        "type",
+        "display_quantity",
     ]
+
+    def display_quantity(self, inventory_movement):
+        if inventory_movement.reason in inventory_movement.INCREMENTAL_REASONS:
+            return "+" + str(inventory_movement.quantity)
+        else:
+            return "-" + str(inventory_movement.quantity)
+
+    display_quantity.short_description = "quantity"
 
 
 @admin.register(Product)
