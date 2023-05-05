@@ -4,13 +4,31 @@ from django.urls import reverse, path
 from django.shortcuts import redirect
 from django.db.models.aggregates import Count
 from django.utils.html import format_html, urlencode
-from .models import Collection, Product, Order
+from .models import Collection, Product, Order, InventoryMovement
 from .choices import OrderStatus
+
+
+@admin.register(InventoryMovement)
+class InventoryMovementAdmin(admin.ModelAdmin):
+    list_display = [
+        "product",
+        "reason",
+        "type",
+        "display_quantity",
+    ]
+
+    def display_quantity(self, inventory_movement):
+        if inventory_movement.reason in inventory_movement.INCREMENTAL_REASONS:
+            return "+" + str(inventory_movement.quantity)
+        else:
+            return "-" + str(inventory_movement.quantity)
+
+    display_quantity.short_description = "quantity"
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ["name", "created_at", "unit_price", "collection"]
+    list_display = ["name", "created_at", "unit_price", "collection", "inventory"]
     list_editable = ["unit_price"]
     list_filter = ["collection", "created_at"]
     list_per_page = 15
